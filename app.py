@@ -20,7 +20,6 @@ class Start():
 
     def fire(self):
         modelSettings = self.envReed()
-        print(modelSettings)
 
         def handle_send(text):
              self.current_text = text
