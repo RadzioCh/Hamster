@@ -8,13 +8,22 @@ class Start():
     def __init__(self):
         self.current_text = None  # dodajemy zmienną instancji
         self.messagesBox = []
+        self.model = None
 
     def envReed(self):
         load_dotenv()
-        modelKey = os.getenv('MISTRAL_API_KEY')
-        modelSleep = os.getenv('MISTRAL_SLEEP')
-        modelNameArray = json.loads(os.getenv('MISTRAL_MODELS'))
-        modelName = modelNameArray['mistral-large-latest']
+        if self.model == "MISTRAL LARGE MODEL":
+            modelKey = os.getenv('MISTRAL_API_KEY')
+            modelSleep = os.getenv('MISTRAL_SLEEP')
+            modelNameArray = json.loads(os.getenv('MISTRAL_MODELS'))
+            modelName = modelNameArray['mistral-large-latest']
+        elif self.model == "GEMINI":
+            modelKey = os.getenv('GEMINI_API_KEY')
+            modelSleep = os.getenv('GEMINI_SLEEP')
+            modelNameArray = json.loads(os.getenv('GEMINI_MODELS'))
+            modelName = modelNameArray['gemini-latest']
+        else:
+            return None
 
         return [modelKey, modelName, modelSleep]
 
@@ -39,11 +48,9 @@ class Start():
         modelName = modelSettings[1]
         mistral_call = MistralCall()
         
-
         self.messagesBox.append(toMessageBox)
         modelResponse = mistral_call.MistralDialog(self.messagesBox, modelName, modelKey)
         self.messagesBox.append(modelResponse)
-
 
         bigger_text = json.dumps(self.messagesBox)
         return bigger_text

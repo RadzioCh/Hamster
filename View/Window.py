@@ -5,17 +5,37 @@ from tkhtmlview import HTMLLabel
 import markdown
 
 class Window():
-    def __init__(self, on_send_callback=None):
+    def __init__(self, on_send_callback=None, start=None):
+        self.root = tk.Tk()
         self.on_send_callback = on_send_callback
+        # Create the main menu
+        self.main_menu = tk.Menu(self.root)
+        self.start = start
        
+    def menuBar(self):
+
+        # Create the submenus
+        CHAT = tk.Menu(self.main_menu, tearoff=0)
+        CHAT.add_command(label="MISTRAL LARGE LASTED", command=lambda: (self.chatWithModels(), setattr(self.start, 'model', "MISTRAL LARGE MODEL") if self.start is not None else None))
+        # CHAT.add_command(label="GEMINI", command=lambda: start.model = "GEMINI")
+
+        TESTER = tk.Menu(self.main_menu, tearoff=0)
+        TESTER.add_command(label="TESTER FORMULARZY", command=self.FormTester)
+        # Add the submenus to the main menu
+        self.main_menu.add_cascade(label="CHAT", menu=CHAT)
+        self.main_menu.add_cascade(label="TESTER", menu=TESTER)
+        # Add the main menu to the root window
+        self.root.config(menu=self.main_menu)
 
 
     def WindowBox(self):
-        root = tk.Tk()
-        root.title("HAMSTER")
-        root.state('zoomed')
+        self.root.title("HAMSTER")
+        self.root.state('zoomed')
+        self.menuBar()
+        self.root.mainloop()
 
-        top_frame = tk.Frame(root, bg='#333333')      # szerokość w pikselach
+    def chatWithModels(self):
+        top_frame = tk.Frame(self.root, bg='#333333')      # szerokość w pikselach
         top_frame.place(relx=0.01,      # 1% od lewej
                          rely=0.01,         # 1% od góry
                          relwidth=0.98,     # 98% szerokości okna
@@ -26,20 +46,16 @@ class Window():
                                       background='#333333',
                                       foreground='white')
         self.response_label.place(relx=0.03, rely=0.01, relwidth=0.9, relheight=0.9, anchor='nw')
-
-
         # Frame na dole okna
-        bottom_frame = tk.Frame(root)
+        bottom_frame = tk.Frame(self.root)
         bottom_frame.pack(side='bottom', fill='x', pady=10, padx=10)
         # Textarea
-        self.text_area = tk.Text(bottom_frame, height=4)
+        self.text_area = tk.Text(bottom_frame, height=6)
         self.text_area.pack(fill='x', pady=(0, 5))
-        self.text_area.bind('<Return>', self.on_send)
+        # self.text_area.bind('<Return>', self.on_send) # Przycisk Enter
         # Przycisk Wyślij
         send_button = tk.Button(bottom_frame, text="Wyślij", command=self.on_send)
         send_button.pack(side='right', padx=5)
-
-        root.mainloop()
 
     def on_send(self, event=None):
         text = self.text_area.get("1.0", "end-1c")
@@ -99,3 +115,12 @@ class Window():
             # Przewijamy do ostatniego "user" jeśli istnieje
             if last_user_index != -1:
                 self.response_label.yview_moveto(last_user_index / len(parsedText))
+
+    def FormTester(self):
+        self.wyczysc_ekran()
+        print('FORM TESTER')
+
+    def wyczysc_ekran(self):
+        for widget in self.root.winfo_children():
+            if widget != self.main_menu:
+                widget.destroy()
