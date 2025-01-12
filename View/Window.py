@@ -13,12 +13,23 @@ class Window():
         self.start = start
        
     def menuBar(self):
-
+        print("MENU BAR", self.start)
         # Create the submenus
         CHAT = tk.Menu(self.main_menu, tearoff=0)
-        CHAT.add_command(label="MISTRAL LARGE LASTED", command=lambda: (self.chatWithModels(), setattr(self.start, 'model', "MISTRAL LARGE MODEL") if self.start is not None else None))
-        # CHAT.add_command(label="GEMINI", command=lambda: start.model = "GEMINI")
-
+        CHAT.add_command(
+            label="MISTRAL LARGE LASTED",
+            command=lambda: (
+                self.chatWithModels(),
+                setattr(self.start, 'model', "MISTRAL LARGE MODEL") if self.start else None
+            )
+        )
+        CHAT.add_command(
+            label="GEMINI",
+            command=lambda: (
+                self.chatWithModels(), 
+                setattr(self.start, 'model', "GEMINI 1.5-FLASH-LASTEST") if self.start else None
+            )
+        )
         TESTER = tk.Menu(self.main_menu, tearoff=0)
         TESTER.add_command(label="TESTER FORMULARZY", command=self.FormTester)
         # Add the submenus to the main menu
@@ -78,6 +89,13 @@ class Window():
                 self.display_response(response)  # wyświetlamy odpowiedź
 
     def display_response(self, text):
+        """
+        Wyświetla odpowiedź od modelu.
+        :param text: Odpowiedź od modelu w formacie JSON
+        :type text: str
+        :return: None
+        :rtype: None
+        """
         if hasattr(self, 'response_label'):
             parsedText = json.loads(text)
             clearText = ''
@@ -94,7 +112,8 @@ class Window():
                     colorText = "#ffdd00"
 
                  # Zamieniamy kropki na escape sequence w numeracji
-                content = valText['content']
+                responseText = valText.get('content') or ''.join(valText.get('parts', []))
+                content = responseText
                 content = content.replace('1.', '1\\.')
                 content = content.replace('2.', '2\\.')
                 content = content.replace('3.', '3\\.')

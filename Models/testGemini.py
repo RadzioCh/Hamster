@@ -1,7 +1,12 @@
 
 from GeminiCall import GeminiCall
+from dotenv import load_dotenv
+import os
 
-geminiCall = GeminiCall('AIzaSyBHCCbrfXSvgXH7aAQhJW1Ubvyl95epTwM')
+
+load_dotenv()
+modelKey = os.getenv('GEMINI_API_KEY')
+geminiCall = GeminiCall(modelKey)
 
 messagesBox = [{
       "role": "user",
@@ -10,7 +15,17 @@ messagesBox = [{
       ],
     }]
 
-prompt = "Ile nóg mają mrówki?"
-responseGemini = geminiCall.GeminiDialog(messagesBox, prompt)
+while True:
+    prompt = input("Pytanie: ")
 
-print(responseGemini)
+    messagesBox.append({"role": "user", "parts": [prompt],})
+
+    responseGemini = geminiCall.GeminiDialog(messagesBox, prompt)
+    print("GEMINI: ", responseGemini)
+    messagesBox.append({"role": "model", "parts": [responseGemini], })
+
+    print("\033[94m" + str(messagesBox) + "\033[0m")
+
+# prompt = "Ile nóg mają mrówki?"
+# responseGemini = geminiCall.GeminiDialog(messagesBox, prompt)
+# print(responseGemini)

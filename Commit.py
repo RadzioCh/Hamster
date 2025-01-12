@@ -10,7 +10,7 @@ def MistralMaind(contentBox):
 
     load_dotenv()
 
-    api_key = os.getenv("API_KEY_MISTRAL")
+    api_key = os.getenv("MISTRAL_API_KEY")
     model = "mistral-large-latest"
     client = Mistral(api_key=api_key)
     
