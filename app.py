@@ -4,6 +4,11 @@ import json
 from View.Window import Window
 from Models.MistralCall import MistralCall
 from Models.GeminiCall import GeminiCall
+from Database.DatabaseConnect import DatabaseConnect
+from Entity.Models import Models
+import sys
+from Prompts.FirstPrompts import FirstPrompts
+
 
 class Start():
     def __init__(self):
@@ -43,10 +48,15 @@ class Start():
         window.WindowBox()
 
     def process(self, modelSettings):
-
+        firstPrompt = self.firstPrompt()
         if modelSettings[3] == "MISTRAL":
+            if not self.messagesBox:
+                self.messagesBox.append({"role": "user", "content": firstPrompt,})
             self.createDialog(modelSettings)
         elif modelSettings[3] == "GEMINI":
+
+            if not self.messagesBox:
+                self.messagesBox.append({"role": "user", "parts": [firstPrompt],})
             self.geminiDialogGemini(modelSettings)
         else:
             print("ERROR")
@@ -68,18 +78,41 @@ class Start():
         self.messagesBox.append(modelResponse)
 
     def geminiDialogGemini(self, modelSettings):
+
         modelKey = modelSettings[0]
         modelName = modelSettings[1]
         geminiCall = GeminiCall(modelKey, modelName)
-        # self.messagesBox = [{
-        #     "role": "user",
-        #     "parts": [
-        #         "Jesteś pomocnym Chomikiem. Twoja rola to pomagać w zrozumieniu problemów.",
-        #     ],
-        # }]
+        
         self.messagesBox.append({"role": "user", "parts": [self.current_text],})
         responseGemini = geminiCall.GeminiDialog(self.messagesBox, self.current_text)
         self.messagesBox.append({"role": "model", "parts": [responseGemini], })
+
+        print("\033[94m" + str(self.messagesBox) + "\033[0m")
+
+    def firstPrompt(self):
+        firstPrompts = FirstPrompts()
+        return firstPrompts.initPrompts()
+    
+    
+        # databaseConnect = DatabaseConnect()
+        # sessionDb = databaseConnect.DbConnect()
+        # models = Models()
+        # globals = models.createModels()
+
+        # initial_prompts = globals.get('Initial_prompts')
+        # result = sessionDb.query(initial_prompts).filter(initial_prompts.prompt_name == "basic").all()
+
+        # current_datetime = datetime.now()
+        # prompt = f"Today is {current_datetime}. "
+        # for row in result:
+        #     prompt += row.prompt+"\n"
+
+        # sessionDb.commit()
+        # sessionDb.close()
+
+        # print(prompt)
+        
+        # return prompt
 
 if __name__ == "__main__":
     start = Start()

@@ -13,7 +13,7 @@ class Window():
         self.start = start
        
     def menuBar(self):
-        print("MENU BAR", self.start)
+        # print("MENU BAR", self.start)
         # Create the submenus
         CHAT = tk.Menu(self.main_menu, tearoff=0)
         CHAT.add_command(
@@ -105,7 +105,10 @@ class Window():
                 if valText['role'] == 'user':
                     last_user_index = i
 
-            for valText in parsedText:
+            for j, valText in enumerate(parsedText):
+                if(j == 0 and valText['role'] == 'user'):
+                    continue
+
                 if valText['role'] == 'user':
                     colorText = "#fff"
                 else:
