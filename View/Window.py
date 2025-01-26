@@ -3,6 +3,7 @@ import json
 from tkinter import ttk
 from tkhtmlview import HTMLLabel
 import markdown
+from tkinter import filedialog
 
 class Window():
     def __init__(self, on_send_callback=None, start=None):
@@ -11,6 +12,7 @@ class Window():
         # Create the main menu
         self.main_menu = tk.Menu(self.root)
         self.start = start
+        self.files_to_upload = []
        
     def menuBar(self):
         # print("MENU BAR", self.start)
@@ -60,15 +62,46 @@ class Window():
         # Frame na dole okna
         bottom_frame = tk.Frame(self.root)
         bottom_frame.pack(side='bottom', fill='x', pady=10, padx=10)
+
+        self.checkbox_python_master = tk.BooleanVar()
+        self.checkbox = tk.Checkbutton(bottom_frame, text="Python master", variable=self.checkbox_python_master)  #  , variable=checkbox_var, command=on_checkbox_changed
+        self.checkbox.grid(row=0, column=0, sticky='w', pady=(0, 5))
+
         # Textarea
         self.text_area = tk.Text(bottom_frame, height=6)
-        self.text_area.pack(fill='x', pady=(0, 5))
+        self.text_area.grid(row=1, column=0, columnspan=2, sticky='ew', pady=(0, 5))
+        
+        # self.text_area.pack(fill='x', pady=(0, 5))
         # self.text_area.bind('<Return>', self.on_send) # Przycisk Enter
+
+        # Element dodający pliki
+        self.upload_button = tk.Button(bottom_frame, text="Dodaj PDF", command=self.upload_file)
+        self.upload_button.grid(row=2, column=0, sticky='w', pady=(0, 5))
+
+        self.file_label = tk.Label(bottom_frame, 
+                                      height=1,              
+                                      text="Wybierz plik PDF klikając 'Dodaj PDF'",
+                                      foreground='black')
+        self.file_label.grid(row=3, column=0, sticky='w', pady=(0, 5), padx=(10, 10))
+
         # Przycisk Wyślij
         send_button = tk.Button(bottom_frame, text="Wyślij", command=self.on_send)
-        send_button.pack(side='right', padx=5)
+        send_button.grid(row=2, column=0, columnspan=2, pady=(0, 5))
+
+        # Ustawienie wagi kolumn, aby textarea rozciągał się na całą szerokość
+        bottom_frame.grid_columnconfigure(0, weight=1)
+        bottom_frame.grid_columnconfigure(1, weight=1)
+
+    def upload_file(self):
+        filetypes = [("PDF Files", "*.pdf"), ("All Files", "*.*")]
+        file_paths = filedialog.askopenfilenames(title="Wybierz pliki", filetypes=filetypes)
+        if file_paths:
+            self.file_label.config(text=" ; ".join(file_paths))
+            self.files_to_upload.extend(file_paths)
+
 
     def on_send(self, event=None):
+
         text = self.text_area.get("1.0", "end-1c")
         if not text.strip():
             return
@@ -84,7 +117,8 @@ class Window():
         self.text_area.focus_set()  # Przywrócenie fokusu na textarea
         
         if self.on_send_callback:
-            response = self.on_send_callback(text)  # odbieramy odpowiedź
+            parametrs = {"python_master": self.checkbox_python_master.get(), "files": self.files_to_upload}
+            response = self.on_send_callback(text, parametrs)  # odbieramy odpowiedź
             if response:
                 self.display_response(response)  # wyświetlamy odpowiedź
 

@@ -2,6 +2,8 @@ import os
 os.environ["GRPC_VERBOSITY"] = "NONE"
 os.environ["GRPC_LOG_SEVERITY_LEVEL"] = "ERROR"
 import google.generativeai as genai
+from vertexai.generative_models import Part,  Content  # Poprawny import
+
 
 class GeminiCall:
     def __init__(self, api_key, model_name='gemini-1.5-flash-latest', temperature=1, top_p=0.95, top_k=40, max_output_tokens=8192, response_mime_type="text/plain"):
@@ -40,3 +42,5 @@ class GeminiCall:
                 response_text = first_candidate.content.parts[0].text
 
         return response_text
+    
+    

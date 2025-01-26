@@ -8,6 +8,10 @@ from Database.DatabaseConnect import DatabaseConnect
 from Entity.Models import Models
 import sys
 from Prompts.FirstPrompts import FirstPrompts
+import base64
+from vertexai.generative_models import Part,  Content  # Poprawny import
+from FilesOperations.OCRFiles import OCRFiles
+
 
 
 class Start():
@@ -17,7 +21,7 @@ class Start():
         self.model = None
 
     def envReed(self):
-        print(f"Current model: {self.model}")
+        # print(f"Current model: {self.model}")
         load_dotenv()
 
         if self.model == "MISTRAL LARGE MODEL":
@@ -38,7 +42,8 @@ class Start():
         return [modelKey, modelName, modelSleep, modelCase]
 
     def fire(self):
-        def handle_send(text):
+        def handle_send(text, parametrs):
+             self.new_parametrs = parametrs
              self.current_text = text
              modelSettings = self.envReed()
              after_process = self.process(modelSettings)
@@ -48,6 +53,12 @@ class Start():
         window.WindowBox()
 
     def process(self, modelSettings):
+
+        print("FILEEEE: ",self.new_parametrs['files']);
+        ocrFiles = OCRFiles()
+        filesAndContent = ocrFiles.loopFilesAndOcr(self.new_parametrs['files'])
+
+
         firstPrompt = self.firstPrompt()
         if modelSettings[3] == "MISTRAL":
             if not self.messagesBox:
@@ -90,29 +101,10 @@ class Start():
         print("\033[94m" + str(self.messagesBox) + "\033[0m")
 
     def firstPrompt(self):
+        # self.python_master
         firstPrompts = FirstPrompts()
+        firstPrompts.parametrs = self.new_parametrs
         return firstPrompts.initPrompts()
-    
-    
-        # databaseConnect = DatabaseConnect()
-        # sessionDb = databaseConnect.DbConnect()
-        # models = Models()
-        # globals = models.createModels()
-
-        # initial_prompts = globals.get('Initial_prompts')
-        # result = sessionDb.query(initial_prompts).filter(initial_prompts.prompt_name == "basic").all()
-
-        # current_datetime = datetime.now()
-        # prompt = f"Today is {current_datetime}. "
-        # for row in result:
-        #     prompt += row.prompt+"\n"
-
-        # sessionDb.commit()
-        # sessionDb.close()
-
-        # print(prompt)
-        
-        # return prompt
 
 if __name__ == "__main__":
     start = Start()
