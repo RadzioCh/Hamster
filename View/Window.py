@@ -4,6 +4,12 @@ from tkinter import ttk
 from tkhtmlview import HTMLLabel
 import markdown
 from tkinter import filedialog
+import sys
+import os
+hamster_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(hamster_root)
+from FilesOperations.OCRFiles import OCRFiles
+from FilesOperations.FileContentActions import FileContentActions
 
 class Window():
     def __init__(self, on_send_callback=None, start=None):
@@ -99,6 +105,23 @@ class Window():
             self.file_label.config(text=" ; ".join(file_paths))
             self.files_to_upload.extend(file_paths)
 
+        # Tworzymy prosty preloader
+        preloader = tk.Toplevel(self.root)
+        preloader.title("Ładowanie")
+        preloader.geometry("300x100")  # Ustawiamy rozmiar okienka
+        tk.Label(preloader, text="Przetwarzanie plików... czekaj spokojnie ...").pack(padx=20, pady=10)
+        # Wymuszamy odświeżenie GUI
+        self.root.update_idletasks()
+
+        ocrFiles = OCRFiles()
+        filesAndContent = ocrFiles.loopFilesAndOcr(self.files_to_upload)
+        fileContentActions = FileContentActions()
+        fileContentActions.insertFileContend(filesAndContent, 'discusion')
+
+        preloader.destroy()
+
+        
+
 
     def on_send(self, event=None):
 
@@ -117,7 +140,7 @@ class Window():
         self.text_area.focus_set()  # Przywrócenie fokusu na textarea
         
         if self.on_send_callback:
-            parametrs = {"python_master": self.checkbox_python_master.get(), "files": self.files_to_upload}
+            parametrs = {"python_master": self.checkbox_python_master.get()}
             response = self.on_send_callback(text, parametrs)  # odbieramy odpowiedź
             if response:
                 self.display_response(response)  # wyświetlamy odpowiedź
