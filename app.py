@@ -11,6 +11,7 @@ from Prompts.FirstPrompts import FirstPrompts
 import base64
 from vertexai.generative_models import Part,  Content  # Poprawny import
 from FilesOperations.OCRFiles import OCRFiles
+from FilesOperations.FileContentActions import FileContentActions
 
 
 
@@ -54,9 +55,7 @@ class Start():
 
     def process(self, modelSettings):
 
-        print("FILEEEE: ",self.new_parametrs['files']);
-        ocrFiles = OCRFiles()
-        filesAndContent = ocrFiles.loopFilesAndOcr(self.new_parametrs['files'])
+        self.addFileInDiscusion()
 
 
         firstPrompt = self.firstPrompt()
@@ -105,6 +104,14 @@ class Start():
         firstPrompts = FirstPrompts()
         firstPrompts.parametrs = self.new_parametrs
         return firstPrompts.initPrompts()
+    
+    def addFileInDiscusion(self):
+        ocrFiles = OCRFiles()
+        filesAndContent = ocrFiles.loopFilesAndOcr(self.new_parametrs['files'])
+        fileContentActions = FileContentActions()
+        fileContentActions.insertFileContend(filesAndContent, 'discusion')
+
+
 
 if __name__ == "__main__":
     start = Start()

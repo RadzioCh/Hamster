@@ -18,5 +18,4 @@ class OCRFiles():
             content = self.ocr(file)
             fileAndContent[file] = content
 
-        print(fileAndContent)
         return fileAndContent

@@ -27,8 +27,8 @@ class DatabaseConnect():
             session = Session()
             return session
         except Exception as e:
-            error_details = traceback.format_exc()
-            print(f"Błąd podczas łączenia z bazą danych: {error_details}")
+            # error_details = traceback.format_exc()  {error_details}
+            print(f"Błąd podczas łączenia z bazą danych ......... ") 
             return None
         
     def DbConnectAndMetadata(self):
