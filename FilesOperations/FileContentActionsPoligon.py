@@ -5,7 +5,7 @@ filesAndContent = {'C:/Users/Beata Chojnacka/Desktop/Controlling/Praca/DOD_INFO_
 fileContentActions = FileContentActions()
 # fileContentActions.insertFileContend(filesAndContent, 'discusion')
 
-result = fileContentActions.lookForALooseResemblance('O czym jest ten tekst', 0.3)
+result = fileContentActions.getContentByFile( 'Z kim jest spotkaniet', 0.3)
 print("\033[94m" + str(result) + "\033[0m")
 
 

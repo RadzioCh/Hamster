@@ -11,7 +11,7 @@ from Prompts.FirstPrompts import FirstPrompts
 import base64
 from vertexai.generative_models import Part,  Content  # Poprawny import
 # from FilesOperations.OCRFiles import OCRFiles
-# from FilesOperations.FileContentActions import FileContentActions
+from FilesOperations.FileContentActions import FileContentActions
 
 
 
@@ -20,6 +20,7 @@ class Start():
         self.current_text = None  # dodajemy zmienną instancji
         self.messagesBox = []
         self.model = None
+        self.fileContentActions = FileContentActions()
 
     def envReed(self):
         # print(f"Current model: {self.model}")
@@ -43,6 +44,9 @@ class Start():
         return [modelKey, modelName, modelSleep, modelCase]
 
     def fire(self):
+        
+        self.fileContentActions.deleteFileContent()
+
         def handle_send(text, parametrs):
              self.new_parametrs = parametrs
              self.current_text = text
@@ -53,11 +57,9 @@ class Start():
         window = Window(on_send_callback=handle_send, start=self)
         window.WindowBox()
 
+
     def process(self, modelSettings):
-
         # self.addFileInDiscusion()
-
-
         firstPrompt = self.firstPrompt()
         if modelSettings[3] == "MISTRAL":
             if not self.messagesBox:
@@ -75,9 +77,13 @@ class Start():
         return bigger_text
     
     def createDialog(self, modelSettings):
+        resultContent = ''
+
+        resultContent += self.fileContentActions.getContentByFile( self.current_text , 0.3)
+
         toMessageBox = { 
             "role": "user",
-            "content": self.current_text,
+            "content": resultContent + self.current_text,
         }
         modelKey = modelSettings[0]
         modelName = modelSettings[1]
@@ -105,11 +111,6 @@ class Start():
         firstPrompts.parametrs = self.new_parametrs
         return firstPrompts.initPrompts()
     
-    # def addFileInDiscusion(self):
-    #     ocrFiles = OCRFiles()
-    #     filesAndContent = ocrFiles.loopFilesAndOcr(self.new_parametrs['files'])
-    #     fileContentActions = FileContentActions()
-    #     fileContentActions.insertFileContend(filesAndContent, 'discusion')
 
 
 

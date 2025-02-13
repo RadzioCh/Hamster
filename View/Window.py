@@ -10,6 +10,10 @@ hamster_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(hamster_root)
 from FilesOperations.OCRFiles import OCRFiles
 from FilesOperations.FileContentActions import FileContentActions
+import threading
+from tkinter import Tk, Label, Button, Toplevel, filedialog
+import time
+
 
 class Window():
     def __init__(self, on_send_callback=None, start=None):
@@ -105,22 +109,24 @@ class Window():
             self.file_label.config(text=" ; ".join(file_paths))
             self.files_to_upload.extend(file_paths)
 
-        # Tworzymy prosty preloader
-        preloader = tk.Toplevel(self.root)
-        preloader.title("Ładowanie")
-        preloader.geometry("300x100")  # Ustawiamy rozmiar okienka
-        tk.Label(preloader, text="Przetwarzanie plików... czekaj spokojnie ...").pack(padx=20, pady=10)
-        # Wymuszamy odświeżenie GUI
-        self.root.update_idletasks()
+        preloader = Toplevel(self.root)
+        preloader.grab_set()
+        Label(preloader, text="Przetwarzanie...").pack(padx=20, pady=10)
+        pb = ttk.Progressbar(preloader, mode="indeterminate")
+        pb.pack(padx=20, pady=10)
+        pb.start()
+        def process():
+            ocrFiles = OCRFiles()
+            filesAndContent = ocrFiles.loopFilesAndOcr(self.files_to_upload)
+            fileContentActions = FileContentActions()
+            fileContentActions.insertFileContend(filesAndContent, 'discusion')
 
-        ocrFiles = OCRFiles()
-        filesAndContent = ocrFiles.loopFilesAndOcr(self.files_to_upload)
-        fileContentActions = FileContentActions()
-        fileContentActions.insertFileContend(filesAndContent, 'discusion')
-
-        preloader.destroy()
-
-        
+            self.root.after(0, finish)
+        def finish():
+            pb.stop()
+            preloader.destroy()
+            self.file_label.config(text="Pliki dodane.")
+        threading.Thread(target=process).start()
 
 
     def on_send(self, event=None):
@@ -179,7 +185,14 @@ class Window():
                 content = content.replace('3.', '3\\.')
 
                 md = markdown.Markdown(extensions=['fenced_code', 'tables', 'nl2br'])
-                content_html = md.convert(content)
+                content_html =  md.convert(content)
+                
+                # usuwamy zawartość w tagach <contents>
+                if '<contents>' in content_html and '</contents>' in content_html:
+                    start_idx = content_html.find('<contents>')
+                    end_idx = content_html.find('</contents>') + len('</contents>')
+                    content_html = content_html[:start_idx] + content_html[end_idx:]
+
                 # Dodajemy id do diva jeśli to ostatni user
                 div_id = ' id="last-user"' if i == last_user_index else ''
                 clearText += f'''

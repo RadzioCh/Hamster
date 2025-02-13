@@ -25,6 +25,23 @@ class FileContentActions():
         # self.mistralCall = MistralCall()
         self.summarizer = pipeline("summarization", model="facebook/bart-large-cnn", revision="main")
 
+    def deleteFileContent(self):
+        databaseConnect = DatabaseConnect()
+        sessionDb = databaseConnect.DbConnect()
+        models = Models()
+        model_classes = models.createModels()
+
+        sessionDb.query(model_classes['File_contents']).delete()
+        sessionDb.commit()
+
+        sessionDb.query(model_classes['File_keywords']).delete()
+        sessionDb.commit()
+
+        sessionDb.query(model_classes['Files']).delete()
+        sessionDb.commit()
+
+        
+
     def insertFileContend(self, fileParametrs, typeInsert):
 
         fieldPrepare = []
@@ -148,7 +165,7 @@ class FileContentActions():
         embedding_vector = embeddingSql.get_embedding_to_text('co to Wartości niematerialne')
 
 
-        print(embedding_vector)
+        # print(embedding_vector)
 
         databaseConnect = DatabaseConnect()
         sessionDb = databaseConnect.DbConnect()
@@ -160,10 +177,9 @@ class FileContentActions():
                 func.cosine_distance(file_contents.embedding, embedding_vector) < 0.7
         ).all()
 
-        for row in result:
-
-            print('********************************')
-            print(row.content)
+        # for row in result:
+        #     print('********************************')
+        #     print(row.content)
 
         sessionDb.commit()
         sessionDb.close()
@@ -195,11 +211,10 @@ class FileContentActions():
         ).filter(similarity >= similartStep).order_by(similarity.desc()).limit(3).all()
 
         # print(result)
-
-        for row in result:
-            print('********************************')
-            print(row.content[:35])
-            print(row.similarity)
+        # for row in result:
+        #     print('********************************')
+        #     print(row.content[:35])
+        #     print(row.similarity)
 
         sessionDb.commit()
         sessionDb.close()
@@ -230,10 +245,9 @@ class FileContentActions():
                 file_contents.id,
                 file_contents.content,
                 similarity.label("similarity")
-            ).filter(similarity >= threshold).order_by(similarity.desc()).limit(5).all()
+            ).filter(similarity >= threshold).order_by(similarity.desc()).limit(3).all()
 
             print(f"Results for threshold {threshold}:")
-
             for row in result:
                 print('********************************')
                 print(f"ID: {row[0]}")
@@ -244,4 +258,12 @@ class FileContentActions():
         sessionDb.commit()
         sessionDb.close()
 
-        
+    def getContentByFile(self, question, similartStep):
+        result = self.lookForALooseResemblance(question, similartStep)
+
+        text = '<contents>'
+        for row in result:
+            text += '<content>'+row.content + '</content>'
+        text += '</contents>'
+
+        return text
