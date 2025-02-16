@@ -45,7 +45,7 @@ class Start():
 
     def fire(self):
         
-        self.fileContentActions.deleteFileContent()
+        # self.fileContentActions.deleteFileContent()
 
         def handle_send(text, parametrs):
              self.new_parametrs = parametrs
@@ -78,8 +78,9 @@ class Start():
     
     def createDialog(self, modelSettings):
         resultContent = ''
-
         resultContent += self.fileContentActions.getContentByFile( self.current_text , 0.3)
+
+        print("CONTENT: ",resultContent)
 
         toMessageBox = { 
             "role": "user",
@@ -94,13 +95,15 @@ class Start():
         self.messagesBox.append(modelResponse)
 
     def geminiDialogGemini(self, modelSettings):
+        resultContent = ''
+        resultContent += self.fileContentActions.getContentByFile( self.current_text , 0.3)
 
         modelKey = modelSettings[0]
         modelName = modelSettings[1]
         geminiCall = GeminiCall(modelKey, modelName)
         
-        self.messagesBox.append({"role": "user", "parts": [self.current_text],})
-        responseGemini = geminiCall.GeminiDialog(self.messagesBox, self.current_text)
+        self.messagesBox.append({"role": "user", "parts": [resultContent+self.current_text],})
+        responseGemini = geminiCall.GeminiDialog(self.messagesBox, resultContent+self.current_text)
         self.messagesBox.append({"role": "model", "parts": [responseGemini], })
 
         print("\033[94m" + str(self.messagesBox) + "\033[0m")

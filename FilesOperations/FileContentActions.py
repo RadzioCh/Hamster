@@ -16,6 +16,7 @@ from sqlalchemy import func
 import numpy as np
 import psycopg2
 from Database.EmbeddingSql import EmbeddingSql
+from sqlalchemy.orm import aliased
 
 
 
@@ -201,14 +202,31 @@ class FileContentActions():
         models = Models()
         globals = models.createModels()
 
+        
+
         file_contents = globals.get('File_contents')
+        files_data = globals.get('Files')
+
+        # print(file_contents.__table__)  # Wyświetla strukturę tabeli
+        # print(files_data.__table__)  # Wyświetla strukturę tabeli
+        # sys.exit()
 
         similarity = 1 - func.cosine_distance(file_contents.embedding, embedding_vector)
-        result = sessionDb.query(
-            file_contents.id,
-            file_contents.content,
-            similarity.label("similarity")
-        ).filter(similarity >= similartStep).order_by(similarity.desc()).limit(3).all()
+        result = (
+            sessionDb.query(
+                file_contents.id,
+                files_data.file_name,
+                file_contents.content,
+                similarity.label("similarity")
+            )
+            .join(files_data, files_data.id == file_contents.file_id)
+            .filter(similarity >= similartStep)
+            .order_by(similarity.desc())
+            .limit(3)
+            .all()
+        )
+
+        
 
         # print(result)
         # for row in result:
@@ -262,7 +280,9 @@ class FileContentActions():
         result = self.lookForALooseResemblance(question, similartStep)
 
         text = '<contents>'
+        
         for row in result:
+            text += '<source_file_name>'+row.file_name+'</source_file_name>'
             text += '<content>'+row.content + '</content>'
         text += '</contents>'
 
