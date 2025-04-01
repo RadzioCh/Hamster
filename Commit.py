@@ -41,7 +41,7 @@ def get_modified_files():
 
 
 def get_diff_for_file(file_path):
-    # Pobierz zmiany dla konkretnego pliku
+    # Pobierz zmiany dla konkretnego pliku ------
     result = subprocess.run(['git', 'diff', '--', file_path], capture_output=True, text=True, encoding='utf-8')
     return result.stdout
 
